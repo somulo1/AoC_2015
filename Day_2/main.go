@@ -30,9 +30,21 @@ func main() {
             continue
         }
 
-        l, _ := strconv.Atoi(dimensions[0])
-        w, _ := strconv.Atoi(dimensions[1])
-        h, _ := strconv.Atoi(dimensions[2])
+        l, err := strconv.Atoi(dimensions[0])
+		if err != nil{
+			fmt.Printf("error in conveersion to int"+"\n")
+			return
+		}
+        w, err := strconv.Atoi(dimensions[1])
+		if err != nil{
+			fmt.Printf("Error in convertion to int"+"\n")
+			return
+		}
+        h,err := strconv.Atoi(dimensions[2])
+		if err != nil{
+			fmt.Printf("Error in convertion to int"+"\n")
+			return
+		}
 
         // Calculate surface area
         surfaceArea := 2*l*w + 2*w*h + 2*h*l
