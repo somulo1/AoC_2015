@@ -1,74 +1,83 @@
 package main
 
 import (
-    "bufio"
-    "fmt"
-    "os"
-    "strconv"
-    "strings"
+	"bufio"
+	"fmt"
+	"os"
+	"strconv"
+	"strings"
 )
 
 func main() {
-    // Open the file
-    file, err := os.Open("data.txt")
-    if err != nil {
-        fmt.Println("Error opening file:", err)
-        return
-    }
-    defer file.Close()
+	if len(os.Args) < 2 {
+		fmt.Println("Usage: go run main.go <something.txt>")
+		return
+	}
+	fileName := os.Args[1]
+	file, err := os.Open(fileName)
+	if err != nil {
+		fmt.Printf("Error opening file: %v\n", err)
+		return
+	}
+	defer file.Close()
 
-    scanner := bufio.NewScanner(file)
-    totalWrappingPaper := 0
+	scanner := bufio.NewScanner(file)
+	var totalRibbon int
 
-    // Process each line in the file
-    for scanner.Scan() {
-        line := scanner.Text()
-        dimensions := strings.Split(line, "x")
+	for scanner.Scan() {
+		line := scanner.Text()
+		dimensions := strings.Split(line, "x")
 
-        if len(dimensions) != 3 {
-            fmt.Println("Invalid dimensions format:", line)
-            continue
-        }
-
-        l, err := strconv.Atoi(dimensions[0])
-		if err != nil{
-			fmt.Printf("error in conveersion to int"+"\n")
-			return
-		}
-        w, err := strconv.Atoi(dimensions[1])
-		if err != nil{
-			fmt.Printf("Error in convertion to int"+"\n")
-			return
-		}
-        h,err := strconv.Atoi(dimensions[2])
-		if err != nil{
-			fmt.Printf("Error in convertion to int"+"\n")
-			return
+		if len(dimensions) != 3 {
+			fmt.Printf("Invalid dimensions format: %s\n", line)
+			continue
 		}
 
-        // Calculate surface area
-        surfaceArea := 2*l*w + 2*w*h + 2*h*l
+		l, w, h, err := parseDimensions(dimensions)
+		if err != nil {
+			fmt.Printf("Error parsing dimensions: %v\n", err)
+			continue
+		}
 
-        // Find the smallest side area for slack
-        minSide := min(l*w, min(w*h, h*l))
+		// Calculate the smallest perimeter directly in the assignment
+		smallestPerimeter := 2 * min(l+w, min(w+h, h+l))
 
-        // Total wrapping paper needed for this present
-        totalPaperForPresent := surfaceArea + minSide
-        totalWrappingPaper += totalPaperForPresent
-    }
+		// Calculate volume
+		volume := l * w * h
 
-    if err := scanner.Err(); err != nil {
-        fmt.Println("Error reading file:", err)
-        return
-    }
+		// Add the total ribbon needed for this present
+		totalRibbon += smallestPerimeter + volume
+	}
 
-    fmt.Printf("Total square feet of wrapping paper needed: %d\n", totalWrappingPaper)
+	if err := scanner.Err(); err != nil {
+		fmt.Printf("Error reading file: %v\n", err)
+		return
+	}
+
+	fmt.Printf("Total feet of ribbon needed: %d\n", totalRibbon)
 }
 
-// Helper function to find the minimum of three integers
+// Helper function to parse dimensions and handle errors
+func parseDimensions(dimensions []string) (int, int, int, error) {
+	l, err := strconv.Atoi(dimensions[0])
+	if err != nil {
+		return 0, 0, 0, fmt.Errorf("error converting length: %w", err)
+	}
+	w, err := strconv.Atoi(dimensions[1])
+	if err != nil {
+		return 0, 0, 0, fmt.Errorf("error converting width: %w", err)
+	}
+	h, err := strconv.Atoi(dimensions[2])
+	if err != nil {
+		return 0, 0, 0, fmt.Errorf("error converting height: %w", err)
+	}
+	return l, w, h, nil
+}
+
+// Helper function to find the minimum of two integers
 func min(a, b int) int {
-    if a < b {
-        return a
-    }
-    return b
+	if a < b {
+		return a
+	}
+	return b
 }
