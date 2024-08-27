@@ -7,23 +7,26 @@ import (
 
 // Find_Position calculates the position where Santa first reaches the basement (floor -1)
 func Find_Position(str string) int {
-	countfloor := 0
+	countup := 0
+	countdown := 0
+	position := 0
 	// Iterate over each character in the puzzles
 	for i, puzzle := range str {
 		if puzzle == '(' {
-			countfloor++
+			countup++
 		} else if puzzle == ')' {
-			countfloor--
+			countdown++
 		}
-		
+
 		// Check if Santa has entered the basement
-		if countfloor == -1 {
-			return i + 1 // Return position
+		if countdown > countup {
+			position = i + 1 // Return position
+			break
 		}
 	}
-	
+
 	//  if the basement is never reached
-	return -1
+	return position
 }
 
 func main() {
@@ -39,9 +42,6 @@ func main() {
 	}
 	puzzles := string(puzzlebit)
 	position := Find_Position(puzzles)
-	if position != -1 {
-		fmt.Printf("The first time santa gets basement is at position %d\n", position)
-	} else {
-		fmt.Println("Santa never enters the basement.")
-	}
+
+	fmt.Printf("The first time santa gets basement is at position %d\n", position)
 }
